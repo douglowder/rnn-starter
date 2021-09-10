@@ -1,3 +1,7 @@
+diff --git a/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp b/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp
+new file mode 100644
+index 0000000..5023477
+Binary files /dev/null and b/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp differ
 diff --git a/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m b/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m
 index cf6a0b1..bca659f 100644
 --- a/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m
@@ -24,3 +28,10 @@ index cf6a0b1..bca659f 100644
      return;
    }
  
+diff --git a/node_modules/react-native/scripts/.packager.env b/node_modules/react-native/scripts/.packager.env
+new file mode 100644
+index 0000000..361f5fb
+--- /dev/null
++++ b/node_modules/react-native/scripts/.packager.env
+@@ -0,0 +1 @@
++export RCT_METRO_PORT=8081
