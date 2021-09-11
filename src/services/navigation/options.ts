@@ -13,7 +13,7 @@ export const navDefaultOptions = (): Options => {
       backgroundColor: Colors.bgColor,
     },
     bottomTabs: {
-      titleDisplayMode: 'alwaysShow',
+      titleDisplayMode: 'showWhenActive',
       backgroundColor: Colors.bgColor,
       hideShadow: true,
       elevation: 0,
@@ -21,6 +21,7 @@ export const navDefaultOptions = (): Options => {
     bottomTab: {
       iconColor: Colors.primary,
       textColor: Colors.primary,
+      fontSize: 30,
       selectedIconColor: Colors.primary,
       selectedTextColor: Colors.primary,
     },
