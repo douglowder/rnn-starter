@@ -69,20 +69,18 @@ index fb07b99..ce9a2fa 100644
      self.scrollView.showsHorizontalScrollIndicator = NO;
      [self addSubview:self.scrollView];
 diff --git a/node_modules/react-native-navigation/lib/ios/RCTHelpers.m b/node_modules/react-native-navigation/lib/ios/RCTHelpers.m
-index 76ba1d9..5409b5a 100644
+index 76ba1d9..88bcf51 100644
 --- a/node_modules/react-native-navigation/lib/ios/RCTHelpers.m
 +++ b/node_modules/react-native-navigation/lib/ios/RCTHelpers.m
-@@ -153,11 +153,16 @@
-     return textAttributes;
- }
+@@ -155,9 +155,14 @@
  
-+CGFloat fontSize = 36.0;
-+#if !TARGET_OS_TV
-+fontSize = [UIFont systemFontSize];
-+#endif
-+
  + (NSMutableDictionary *)textAttributesFromDictionary:(NSDictionary *)dictionary
                                             withPrefix:(NSString *)prefix {
++    CGFloat fontSize = 36.0;
++    #if !TARGET_OS_TV
++    fontSize = (CGFloat)[UIFont systemFontSize];
++    #endif
++
      return [self textAttributesFromDictionary:dictionary
                                     withPrefix:prefix
 -                                     baseFont:[UIFont systemFontOfSize:[UIFont systemFontSize]]];
@@ -156,10 +154,18 @@ index 54ccea8..4aca99f 100644
  - (BOOL)hidesBottomBarWhenPushed {
      RNNNavigationOptions *withDefault =
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
-index 0472198..2aa9fd7 100644
+index 0472198..7f32226 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
 +++ b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
-@@ -188,6 +188,7 @@
+@@ -39,6 +39,7 @@
+                 childViewControllers:childViewControllers];
+     if (@available(iOS 13.0, *)) {
+         self.tabBar.standardAppearance = [UITabBarAppearance new];
++        
+     }
+ 
+     self.longPressRecognizer =
+@@ -188,6 +189,7 @@
      [self.presenter willMoveToParentViewController:parent];
  }
  
@@ -167,7 +173,7 @@ index 0472198..2aa9fd7 100644
  - (UIStatusBarStyle)preferredStatusBarStyle {
      return [self.presenter getStatusBarStyle];
  }
-@@ -203,5 +204,6 @@
+@@ -203,5 +205,6 @@
  - (BOOL)hidesBottomBarWhenPushed {
      return [self.presenter hidesBottomBarWhenPushed];
  }
