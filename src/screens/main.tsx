@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ScrollView, Alert } from 'react-native';
+import { Platform, ScrollView, Alert, TVMenuControl, useTVEventHandler } from 'react-native';
 import { View, Button, Text } from 'react-native-ui-lib';
 import { NavigationFunctionComponent } from 'react-native-navigation';
 import { useNavigationButtonPress } from 'react-native-navigation-hooks/dist';
@@ -32,6 +32,11 @@ export const Main: NavigationFunctionComponent = observer(({ componentId }) => {
       Alert.alert('Error', 'There was a problem fetching data :(');
     }
   };
+
+  const myTVEventHandler = (evt: HWFocusEvent) => {
+    console.log('Event: ' + evt.eventType);
+  };
+  useTVEventHandler(myTVEventHandler);
 
   return (
     <View flex bg-bgColor>
@@ -83,6 +88,12 @@ export const Main: NavigationFunctionComponent = observer(({ componentId }) => {
               </Text>
               <Button margin-xs label="-" onPress={counter.dec} />
               <Button margin-xs label="+" onPress={counter.inc} />
+              {Platform.isTV ? (
+                <Button margin-xs label="Enable menu key" onPress={() => TVMenuControl.enableTVMenuKey()} />
+              ) : null}
+              {Platform.isTV ? (
+                <Button margin-xs label="Disable menu key" onPress={() => TVMenuControl.disableTVMenuKey()} />
+              ) : null}
               <Button margin-xs label="reset" onPress={counter.reset} link />
             </View>
           </Section>
