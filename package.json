@@ -10,6 +10,7 @@
     "android:release": "yarn android --variant release",
     "android:adb": "adb reverse tcp:8081 tcp:8081",
     "ios": "npx react-native run-ios",
+    "tvos": "npx react-native run-ios --scheme=\"RNNStarter-tvOS\" --simulator=\"Apple TV\"",
     "ios:release": "yarn ios --configuration Release",
     "ios:pods": "npx pod-install",
     "start": "npx react-native start",
