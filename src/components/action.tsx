@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Colors } from 'react-native-ui-lib';
+import { Platform } from 'react-native';
+import { View, Text, Colors } from 'react-native-ui-lib';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import { Bounceable } from './bounceable';
 
 type ActionProps = {
   title: string;
@@ -22,10 +24,10 @@ export const Action: React.FC<ActionProps> = ({
 
   return (
     <View padding-m>
-      <TouchableOpacity {...b}>
+      <Bounceable {...b}>
         <View row centerV style={{ justifyContent: 'space-between' }}>
           <View row centerV>
-            {!!icon && (
+            {!Platform.isTV && !!icon && (
               <View marginR-m>
                 <Ionicons name={icon} size={20} color={Colors.primary} />
               </View>
@@ -44,7 +46,7 @@ export const Action: React.FC<ActionProps> = ({
             </Text>
           )}
         </View>
-      </TouchableOpacity>
+      </Bounceable>
     </View>
   );
 };
