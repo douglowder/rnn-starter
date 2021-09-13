@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { View, Text, Colors } from 'react-native-ui-lib';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -27,7 +26,7 @@ export const Action: React.FC<ActionProps> = ({
       <Bounceable {...b}>
         <View row centerV style={{ justifyContent: 'space-between' }}>
           <View row centerV>
-            {!Platform.isTV && !!icon && (
+            {!!icon && (
               <View marginR-m>
                 <Ionicons name={icon} size={20} color={Colors.primary} />
               </View>
