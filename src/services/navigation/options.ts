@@ -9,7 +9,7 @@ const ICON_SIZE = 25;
 export const navDefaultOptions = (): Options => {
   return {
     layout: {
-      orientation: ['portrait'],
+      orientation: ['portrait', 'landscape'],
       componentBackgroundColor: Colors.bgColor,
       backgroundColor: Colors.bgColor,
     },
@@ -22,7 +22,7 @@ export const navDefaultOptions = (): Options => {
     bottomTab: {
       iconColor: Colors.primary,
       textColor: Colors.primary,
-      fontSize: Platform.isTV ? 30 : 14,
+      fontSize: Platform.isTVOS ? 30 : 14,
       selectedIconColor: Colors.primary,
       selectedTextColor: Colors.primary,
     },
