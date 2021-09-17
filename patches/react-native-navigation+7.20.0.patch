@@ -154,18 +154,41 @@ index 54ccea8..4aca99f 100644
  - (BOOL)hidesBottomBarWhenPushed {
      RNNNavigationOptions *withDefault =
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
-index 0472198..7f32226 100644
+index 0472198..68ba98e 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
 +++ b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
-@@ -39,6 +39,7 @@
+@@ -1,5 +1,9 @@
+ #import "RNNBottomTabsController.h"
+ #import "UITabBarController+RNNUtils.h"
++#if TARGET_OS_TV
++#import <React/RCTTVRemoteHandler.h>
++#endif
++
+ 
+ @interface RNNBottomTabsController ()
+ @property(nonatomic, strong) BottomTabPresenter *bottomTabPresenter;
+@@ -37,8 +41,9 @@
+                            presenter:presenter
+                         eventEmitter:eventEmitter
                  childViewControllers:childViewControllers];
-     if (@available(iOS 13.0, *)) {
+-    if (@available(iOS 13.0, *)) {
++    if (@available(iOS 13.0, tvOS 13.0, *)) {
          self.tabBar.standardAppearance = [UITabBarAppearance new];
 +        
      }
  
      self.longPressRecognizer =
-@@ -188,6 +189,7 @@
+@@ -53,6 +58,9 @@
+     [super viewWillAppear:animated];
+     _viewWillAppearOnce = YES;
+     [self loadChildren:self.pendingChildViewControllers];
++#if TARGET_OS_TV
++    [RCTTVRemoteHandler addTVRemoteHandlerToView:self.view];
++#endif
+ }
+ 
+ - (void)onChildAddToParent:(UIViewController *)child options:(RNNNavigationOptions *)options {
+@@ -188,6 +196,7 @@
      [self.presenter willMoveToParentViewController:parent];
  }
  
@@ -173,7 +196,7 @@ index 0472198..7f32226 100644
  - (UIStatusBarStyle)preferredStatusBarStyle {
      return [self.presenter getStatusBarStyle];
  }
-@@ -203,5 +205,6 @@
+@@ -203,5 +212,6 @@
  - (BOOL)hidesBottomBarWhenPushed {
      return [self.presenter hidesBottomBarWhenPushed];
  }

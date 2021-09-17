@@ -91,10 +91,10 @@ index 312410d..d42d8a0 100644
  
  @end
 diff --git a/node_modules/react-native/React/Base/RCTTVRemoteHandler.m b/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
-index d76c641..85ba10a 100644
+index d76c641..2cd759a 100644
 --- a/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
 +++ b/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
-@@ -41,6 +41,36 @@ NSString *const RCTTVRemoteEventSwipeDown = @"swipeDown";
+@@ -41,6 +41,41 @@ NSString *const RCTTVRemoteEventSwipeDown = @"swipeDown";
    NSMutableDictionary<NSString *, UIGestureRecognizer *> *_tvRemoteGestureRecognizers;
  }
  
@@ -114,6 +114,11 @@ index d76c641..85ba10a 100644
 +{
 +    for (NSString *key in [[RCTTVRemoteHandler instance].tvRemoteGestureRecognizers allKeys]) {
 +      [view addGestureRecognizer:[RCTTVRemoteHandler instance].tvRemoteGestureRecognizers[key]];
++    }
++    if ([RCTTVRemoteHandler instance].useMenuKey) {
++        [view enableTVMenuKey];
++    } else {
++        [view disableTVMenuKey];
 +    }
 +    
 +    [[NSNotificationCenter defaultCenter] addObserver:view
