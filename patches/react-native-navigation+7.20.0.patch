@@ -199,6 +199,31 @@ index fc5c18f..6d2debe 100644
          [viewController setBackgroundColor:[withDefault.layout.componentBackgroundColor
                                                 withDefault:viewController.view.backgroundColor]];
      }
+diff --git a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
+index 768c9d5..a7d7845 100644
+--- a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
++++ b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
+@@ -1,4 +1,7 @@
+ #import "RNNComponentRootView.h"
++#if TARGET_OS_TV
++#import <React/RCTTVRemoteHandler.h>
++#endif
+ 
+ @implementation RNNComponentRootView
+ 
+@@ -13,6 +16,12 @@
+                     eventEmitter:eventEmitter
+              reactViewReadyBlock:reactViewReadyBlock];
+     [bridge.uiManager setAvailableSize:UIScreen.mainScreen.bounds.size forRootView:self];
++    
++#if TARGET_OS_TV
++
++    [RCTTVRemoteHandler addTVRemoteHandlerToView:self];
++    
++#endif
+     return self;
+ }
+ 
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m b/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m
 index ea592a9..f8562b9 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m
@@ -311,6 +336,19 @@ index 3e09f88..8338298 100644
 +#endif
  
  @end
+diff --git a/node_modules/react-native-navigation/lib/ios/RNNReactView.m b/node_modules/react-native-navigation/lib/ios/RNNReactView.m
+index 5002ef2..3817259 100644
+--- a/node_modules/react-native-navigation/lib/ios/RNNReactView.m
++++ b/node_modules/react-native-navigation/lib/ios/RNNReactView.m
+@@ -33,7 +33,7 @@
+         _reactViewReadyBlock();
+         _reactViewReadyBlock = nil;
+     }
+-    [[NSNotificationCenter defaultCenter] removeObserver:self];
++   // [[NSNotificationCenter defaultCenter] removeObserver:self];
+ }
+ 
+ - (void)componentWillAppear {
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNSideMenuChildVC.m b/node_modules/react-native-navigation/lib/ios/RNNSideMenuChildVC.m
 index a276fbd..f059b0c 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNSideMenuChildVC.m
@@ -408,6 +446,18 @@ index d0dca93..79303b8 100644
 +#endif
  
  @end
+diff --git a/node_modules/react-native-navigation/lib/ios/RNNStackController.h b/node_modules/react-native-navigation/lib/ios/RNNStackController.h
+index c54c7b5..1e97aaf 100644
+--- a/node_modules/react-native-navigation/lib/ios/RNNStackController.h
++++ b/node_modules/react-native-navigation/lib/ios/RNNStackController.h
+@@ -4,6 +4,7 @@
+ #import "UIViewController+LayoutProtocol.h"
+ #import <UIKit/UIKit.h>
+ 
++
+ @interface RNNStackController : UINavigationController <RNNLayoutProtocol, UINavigationBarDelegate>
+ 
+ @property(nonatomic, retain) RNNStackPresenter *presenter;
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNStackController.m b/node_modules/react-native-navigation/lib/ios/RNNStackController.m
 index 28f2cc4..d526c91 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNStackController.m

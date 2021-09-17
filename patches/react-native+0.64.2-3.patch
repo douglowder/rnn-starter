@@ -1,7 +1,162 @@
-diff --git a/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp b/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp
-new file mode 100644
-index 0000000..5023477
-Binary files /dev/null and b/node_modules/react-native/Libraries/Utilities/.RCTLog.js.swp differ
+diff --git a/node_modules/react-native/React/Base/RCTRootView.m b/node_modules/react-native/React/Base/RCTRootView.m
+index cc9843e..4153bef 100644
+--- a/node_modules/react-native/React/Base/RCTRootView.m
++++ b/node_modules/react-native/React/Base/RCTRootView.m
+@@ -98,15 +98,8 @@ NSString *const RCTTVDisableMenuKeyNotification = @"RCTTVDisableMenuKeyNotificat
+                                                object:self];
+ 
+ #if TARGET_OS_TV
+-      [[NSNotificationCenter defaultCenter] addObserver:self
+-                                               selector:@selector(enableTVMenuKey)
+-                                                   name:RCTTVEnableMenuKeyNotification
+-                                                 object:nil];
+ 
+-      [[NSNotificationCenter defaultCenter] addObserver:self
+-                                               selector:@selector(disableTVMenuKey)
+-                                                   name:RCTTVDisableMenuKeyNotification
+-                                                 object:nil];
++      [RCTTVRemoteHandler addTVRemoteHandlerToView:self];
+ 
+ #if RCT_DEV
+       [[NSNotificationCenter defaultCenter] addObserver:self
+@@ -115,11 +108,6 @@ NSString *const RCTTVDisableMenuKeyNotification = @"RCTTVDisableMenuKeyNotificat
+                                                  object:nil];
+ #endif
+       
+-    self.tvRemoteHandler = [RCTTVRemoteHandler new];
+-    for (NSString *key in [self.tvRemoteHandler.tvRemoteGestureRecognizers allKeys]) {
+-      [self addGestureRecognizer:self.tvRemoteHandler.tvRemoteGestureRecognizers[key]];
+-    }
+-    // [self addGestureRecognizer:self.tvRemoteHandler.tvMenuKeyRecognizer];
+ #endif
+ 
+     [self showLoadingView];
+@@ -136,22 +124,6 @@ NSString *const RCTTVDisableMenuKeyNotification = @"RCTTVDisableMenuKeyNotificat
+ 
+ #if TARGET_OS_TV
+ 
+-- (void)enableTVMenuKey {
+-    dispatch_async(dispatch_get_main_queue(), ^{
+-        if (![[self gestureRecognizers] containsObject:self.tvRemoteHandler.tvMenuKeyRecognizer]) {
+-            [self addGestureRecognizer:self.tvRemoteHandler.tvMenuKeyRecognizer];
+-        }
+-    });
+-}
+-
+-- (void)disableTVMenuKey {
+-    dispatch_async(dispatch_get_main_queue(), ^{
+-        if ([[self gestureRecognizers] containsObject:self.tvRemoteHandler.tvMenuKeyRecognizer]) {
+-            [self removeGestureRecognizer:self.tvRemoteHandler.tvMenuKeyRecognizer];
+-        }
+-    });
+-}
+-
+ #if RCT_DEV
+ - (void)showDevMenu {
+     dispatch_async(dispatch_get_main_queue(), ^{
+diff --git a/node_modules/react-native/React/Base/RCTRootViewInternal.h b/node_modules/react-native/React/Base/RCTRootViewInternal.h
+index c6a21c9..7b28bae 100644
+--- a/node_modules/react-native/React/Base/RCTRootViewInternal.h
++++ b/node_modules/react-native/React/Base/RCTRootViewInternal.h
+@@ -7,8 +7,6 @@
+ 
+ #import <React/RCTRootView.h>
+ 
+-@class RCTTVRemoteHandler;
+-
+ /**
+  * The interface provides a set of functions that allow other internal framework
+  * classes to change the RCTRootViews's internal state.
+@@ -25,7 +23,6 @@
+  * TV remote gesture recognizers
+  */
+ #if TARGET_OS_TV
+-@property (nonatomic, strong) RCTTVRemoteHandler *tvRemoteHandler;
+ @property (nonatomic, strong) UIView *reactPreferredFocusedView;
+ #endif
+ 
+diff --git a/node_modules/react-native/React/Base/RCTTVRemoteHandler.h b/node_modules/react-native/React/Base/RCTTVRemoteHandler.h
+index 312410d..d42d8a0 100644
+--- a/node_modules/react-native/React/Base/RCTTVRemoteHandler.h
++++ b/node_modules/react-native/React/Base/RCTTVRemoteHandler.h
+@@ -28,5 +28,10 @@ extern NSString *const RCTTVRemoteEventSwipeDown;
+ 
+ @property (nonatomic, copy, readonly) NSDictionary *tvRemoteGestureRecognizers;
+ @property (nonatomic, strong) UITapGestureRecognizer *tvMenuKeyRecognizer;
++@property (nonatomic, assign) BOOL useMenuKey;
++
+++ (RCTTVRemoteHandler *)instance;
++
+++ (void)addTVRemoteHandlerToView:( UIView * _Nonnull )view;
+ 
+ @end
+diff --git a/node_modules/react-native/React/Base/RCTTVRemoteHandler.m b/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
+index d76c641..85ba10a 100644
+--- a/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
++++ b/node_modules/react-native/React/Base/RCTTVRemoteHandler.m
+@@ -41,6 +41,36 @@ NSString *const RCTTVRemoteEventSwipeDown = @"swipeDown";
+   NSMutableDictionary<NSString *, UIGestureRecognizer *> *_tvRemoteGestureRecognizers;
+ }
+ 
++static RCTTVRemoteHandler * _instance = nil;
++
+++ (RCTTVRemoteHandler *)instance
++{
++  static dispatch_once_t onceToken;
++  dispatch_once(&onceToken, ^{
++    // Set up JS thread
++      _instance = [[RCTTVRemoteHandler alloc] init];
++  });
++  return _instance;
++}
++
+++ (void)addTVRemoteHandlerToView:(UIView *)view
++{
++    for (NSString *key in [[RCTTVRemoteHandler instance].tvRemoteGestureRecognizers allKeys]) {
++      [view addGestureRecognizer:[RCTTVRemoteHandler instance].tvRemoteGestureRecognizers[key]];
++    }
++    
++    [[NSNotificationCenter defaultCenter] addObserver:view
++                                             selector:@selector(enableTVMenuKey)
++                                                 name:RCTTVEnableMenuKeyNotification
++                                               object:nil];
++
++    [[NSNotificationCenter defaultCenter] addObserver:view
++                                             selector:@selector(disableTVMenuKey)
++                                                 name:RCTTVDisableMenuKeyNotification
++                                               object:nil];
++}
++
++
+ - (instancetype)init
+ {
+   if ((self = [super init])) {
+diff --git a/node_modules/react-native/React/Modules/RCTTVMenuBridge.m b/node_modules/react-native/React/Modules/RCTTVMenuBridge.m
+index eceb8f4..ecf3e63 100644
+--- a/node_modules/react-native/React/Modules/RCTTVMenuBridge.m
++++ b/node_modules/react-native/React/Modules/RCTTVMenuBridge.m
+@@ -6,6 +6,7 @@
+ 
+ #import "RCTTVMenuBridge.h"
+ #import <React/RCTRootView.h>
++#import "RCTTVRemoteHandler.h"
+ 
+ @implementation RCTTVMenuBridge
+ 
+@@ -13,11 +14,13 @@ RCT_EXPORT_MODULE();
+ 
+ RCT_EXPORT_METHOD(enableTVMenuKey)
+ {
++    [RCTTVRemoteHandler instance].useMenuKey = YES;
+     [[NSNotificationCenter defaultCenter] postNotificationName:RCTTVEnableMenuKeyNotification object:nil];
+ }
+ 
+ RCT_EXPORT_METHOD(disableTVMenuKey)
+ {
++    [RCTTVRemoteHandler instance].useMenuKey = NO;
+     [[NSNotificationCenter defaultCenter] postNotificationName:RCTTVDisableMenuKeyNotification object:nil];
+ }
+ 
 diff --git a/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m b/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m
 index cf6a0b1..bca659f 100644
 --- a/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m
@@ -28,6 +183,62 @@ index cf6a0b1..bca659f 100644
      return;
    }
  
+diff --git a/node_modules/react-native/React/Views/UIView+React.h b/node_modules/react-native/React/Views/UIView+React.h
+index 67c665b..8a04f9f 100644
+--- a/node_modules/react-native/React/Views/UIView+React.h
++++ b/node_modules/react-native/React/Views/UIView+React.h
+@@ -127,4 +127,11 @@
+  */
+ - (NSString *)react_recursiveDescription;
+ 
++#if TARGET_OS_TV
++
++- (void)enableTVMenuKey;
++- (void)disableTVMenuKey;
++
++#endif
++
+ @end
+diff --git a/node_modules/react-native/React/Views/UIView+React.m b/node_modules/react-native/React/Views/UIView+React.m
+index d42c7b3..58efd1a 100644
+--- a/node_modules/react-native/React/Views/UIView+React.m
++++ b/node_modules/react-native/React/Views/UIView+React.m
+@@ -13,6 +13,10 @@
+ #import "RCTLog.h"
+ #import "RCTShadowView.h"
+ 
++#if TARGET_OS_TV
++#import "RCTTVRemoteHandler.h"
++#endif
++
+ @implementation UIView (React)
+ 
+ - (NSNumber *)reactTag
+@@ -376,4 +380,24 @@
+   return description;
+ }
+ 
++#if TARGET_OS_TV
++
++- (void)enableTVMenuKey {
++    dispatch_async(dispatch_get_main_queue(), ^{
++        if (![[self gestureRecognizers] containsObject:[RCTTVRemoteHandler instance].tvMenuKeyRecognizer]) {
++            [self addGestureRecognizer:[RCTTVRemoteHandler instance].tvMenuKeyRecognizer];
++        }
++    });
++}
++
++- (void)disableTVMenuKey {
++    dispatch_async(dispatch_get_main_queue(), ^{
++        if ([[self gestureRecognizers] containsObject:[RCTTVRemoteHandler instance].tvMenuKeyRecognizer]) {
++            [self removeGestureRecognizer:[RCTTVRemoteHandler instance].tvMenuKeyRecognizer];
++        }
++    });
++}
++
++#endif
++
+ @end
 diff --git a/node_modules/react-native/scripts/.packager.env b/node_modules/react-native/scripts/.packager.env
 new file mode 100644
 index 0000000..361f5fb
