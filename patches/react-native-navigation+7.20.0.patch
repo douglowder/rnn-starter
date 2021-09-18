@@ -153,8 +153,31 @@ index 54ccea8..4aca99f 100644
  
  - (BOOL)hidesBottomBarWhenPushed {
      RNNNavigationOptions *withDefault =
+diff --git a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.h b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.h
+index 0f0ebe1..39a6f1a 100644
+--- a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.h
++++ b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.h
+@@ -5,6 +5,9 @@
+ #import "RNNEventEmitter.h"
+ #import "UIViewController+LayoutProtocol.h"
+ #import <UIKit/UIKit.h>
++#if TARGET_OS_TV
++@class RCTTVRemoteHandler;
++#endif
+ 
+ @interface RNNBottomTabsController
+     : UITabBarController <RNNLayoutProtocol, UITabBarControllerDelegate>
+@@ -30,4 +33,8 @@
+ 
+ @property(nonatomic, strong) NSArray *pendingChildViewControllers;
+ 
++#if TARGET_OS_TV
++@property(nonatomic, strong) RCTTVRemoteHandler *tvRemoteHandler;
++#endif
++
+ @end
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
-index 0472198..68ba98e 100644
+index 0472198..add1778 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
 +++ b/node_modules/react-native-navigation/lib/ios/RNNBottomTabsController.m
 @@ -1,5 +1,9 @@
@@ -178,17 +201,29 @@ index 0472198..68ba98e 100644
      }
  
      self.longPressRecognizer =
-@@ -53,6 +58,9 @@
+@@ -49,10 +54,21 @@
+     return self;
+ }
+ 
++- (void)dealloc
++{
++#if TARGET_OS_TV
++    self.tvRemoteHandler = nil;
++#endif
++}
++
+ - (void)viewWillAppear:(BOOL)animated {
      [super viewWillAppear:animated];
      _viewWillAppearOnce = YES;
      [self loadChildren:self.pendingChildViewControllers];
 +#if TARGET_OS_TV
-+    [RCTTVRemoteHandler addTVRemoteHandlerToView:self.view];
++    self.tvRemoteHandler = [[RCTTVRemoteHandler alloc] initWithView:self.view];
 +#endif
++
  }
  
  - (void)onChildAddToParent:(UIViewController *)child options:(RNNNavigationOptions *)options {
-@@ -188,6 +196,7 @@
+@@ -188,6 +204,7 @@
      [self.presenter willMoveToParentViewController:parent];
  }
  
@@ -196,7 +231,7 @@ index 0472198..68ba98e 100644
  - (UIStatusBarStyle)preferredStatusBarStyle {
      return [self.presenter getStatusBarStyle];
  }
-@@ -203,5 +212,6 @@
+@@ -203,5 +220,6 @@
  - (BOOL)hidesBottomBarWhenPushed {
      return [self.presenter hidesBottomBarWhenPushed];
  }
@@ -222,8 +257,25 @@ index fc5c18f..6d2debe 100644
          [viewController setBackgroundColor:[withDefault.layout.componentBackgroundColor
                                                 withDefault:viewController.view.backgroundColor]];
      }
+diff --git a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.h b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.h
+index 84ee3eb..ae93219 100644
+--- a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.h
++++ b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.h
+@@ -1,5 +1,12 @@
+ #import "RNNReactView.h"
++#if TARGET_OS_TV
++@class RCTTVRemoteHandler;
++#endif
+ 
+ @interface RNNComponentRootView : RNNReactView
+ 
++#if TARGET_OS_TV
++@property(nonatomic, strong) RCTTVRemoteHandler *tvRemoteHandler;
++#endif
++
+ @end
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
-index 768c9d5..a7d7845 100644
+index 768c9d5..0fb404c 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
 +++ b/node_modules/react-native-navigation/lib/ios/RNNComponentRootView.m
 @@ -1,4 +1,7 @@
@@ -234,19 +286,30 @@ index 768c9d5..a7d7845 100644
  
  @implementation RNNComponentRootView
  
-@@ -13,6 +16,12 @@
+@@ -13,6 +16,11 @@
                      eventEmitter:eventEmitter
               reactViewReadyBlock:reactViewReadyBlock];
      [bridge.uiManager setAvailableSize:UIScreen.mainScreen.bounds.size forRootView:self];
 +    
 +#if TARGET_OS_TV
-+
-+    [RCTTVRemoteHandler addTVRemoteHandlerToView:self];
-+    
++    self.tvRemoteHandler = [[RCTTVRemoteHandler alloc] initWithView:self];
 +#endif
++
      return self;
  }
  
+@@ -20,4 +28,11 @@
+     return ComponentTypeScreen;
+ }
+ 
++- (void)dealloc
++{
++#if TARGET_OS_TV
++    self.tvRemoteHandler = nil;
++#endif
++}
++
+ @end
 diff --git a/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m b/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m
 index ea592a9..f8562b9 100644
 --- a/node_modules/react-native-navigation/lib/ios/RNNComponentViewController.m
