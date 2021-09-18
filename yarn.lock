@@ -6792,11 +6792,6 @@ react-native-animatable@^1.1.0:
   dependencies:
     prop-types "^15.7.2"
 
-react-native-async-storage@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-async-storage/-/react-native-async-storage-0.0.1.tgz#5f2ef5ff30eae64b4248e265b534e72ea41cdc69"
-  integrity sha1-Xy71/zDq5ktCSOJltTTnLqQc3Gk=
-
 react-native-codegen@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.0.6.tgz#b3173faa879cf71bfade8d030f9c4698388f6909"
@@ -6925,10 +6920,9 @@ react-native-vector-icons@^8.1.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-"react-native@npm:react-native-tvos":
-  version "0.64.2-3"
-  resolved "https://registry.yarnpkg.com/react-native-tvos/-/react-native-tvos-0.64.2-3.tgz#e0bc94e78ee1d0f55f765e9741be8877dc0da7c5"
-  integrity sha512-iqGGUYhVWbjdEvTaE77mDxLb3bLpZWTSJq7kBsdSRPBmsX1fQl+4ScT/p0lnPW2H1MWQwtQhAfii8Ia3gbafMA==
+"react-native@file:../react-native-tvos/react-native-tvos-0.64.2-4.tgz":
+  version "0.64.2-4"
+  resolved "file:../react-native-tvos/react-native-tvos-0.64.2-4.tgz#7f17177415efd8d8dddb804f81a1a98c8d8ee8db"
   dependencies:
     "@jest/create-cache-key-function" "^26.5.0"
     "@react-native-community/cli" "^5.0.1-alpha.1"
